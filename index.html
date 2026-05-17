@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionnaire — Fabien Granier · Pilote Marketing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #faf6f1;
+  --cream-deep: #f3ece3;
+  --warm: #f5efe6;
+  --charcoal: #2c2a27;
+  --charcoal-light: #5c5750;
+  --text: #2c2a27;
+  --text-light: #7a7568;
+  --accent: #c06a35;
+  --accent-hover: #a8582b;
+  --accent-soft: #e8a06a;
+  --green: #4a7c59;
+  --green-soft: #e8f0ea;
+  --red: #c0392b;
+  --dark: #1e1d1b;
+  --border: #e5ddd3;
+  --card-bg: #ffffff;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 8px rgba(44,42,39,.06), 0 8px 24px rgba(44,42,39,.04);
+  --font-heading: 'Lora', Georgia, serif;
+  --font-body: 'Nunito', -apple-system, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--text);min-height:100vh;}
+
+/* ===== ÉCRAN DE CHOIX ===== */
+.splash{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
+.splash-logo{font-family:var(--font-heading);font-size:14px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;}
+.splash h1{font-family:var(--font-heading);font-size:28px;font-weight:700;color:var(--charcoal);margin-bottom:10px;line-height:1.3;}
+.splash p{font-size:14px;color:var(--text-light);max-width:440px;margin:0 auto 36px;line-height:1.6;}
+.template-cards{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;max-width:600px;}
+.template-card{background:var(--card-bg);border:2px solid var(--border);border-radius:var(--radius);padding:28px 24px;width:260px;cursor:pointer;transition:all .2s;text-align:left;box-shadow:var(--shadow);}
+.template-card:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 4px 16px rgba(44,42,39,.1);}
+.template-card .tc-icon{font-size:28px;margin-bottom:12px;}
+.template-card h3{font-family:var(--font-heading);font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;}
+.template-card p{font-size:12px;color:var(--text-light);line-height:1.5;margin:0;}
+.template-card .tc-meta{font-size:11px;color:var(--accent);font-weight:600;margin-top:12px;letter-spacing:.5px;}
+
+/* RESUME BANNER */
+.resume-banner{background:var(--green-soft);border:1px solid #c0d8c8;border-radius:var(--radius-sm);padding:14px 18px;margin-top:24px;max-width:540px;display:flex;align-items:center;gap:12px;font-size:13px;color:#065f46;}
+.resume-banner button{background:var(--green);color:white;border:none;padding:7px 16px;border-radius:20px;font-family:var(--font-body);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.resume-banner .resume-dismiss{background:transparent;color:var(--text-light);border:1px solid var(--border);padding:6px 12px;}
+
+/* ===== HERO ===== */
+.hero{background:var(--dark);padding:40px 20px 24px;text-align:center;}
+.hero-badge{display:inline-block;background:rgba(192,106,53,.15);border:1px solid rgba(192,106,53,.3);color:var(--accent-soft);font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:14px;}
+.hero h1{font-family:var(--font-heading);font-size:24px;font-weight:700;color:var(--cream);line-height:1.3;margin-bottom:8px;}
+.hero h1 em{font-style:italic;color:var(--accent-soft);}
+.hero-sub{font-size:13px;color:rgba(250,246,241,.5);max-width:460px;margin:0 auto 16px;line-height:1.6;}
+.hero-meta{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;}
+.hero-meta span{font-size:12px;color:rgba(250,246,241,.4);}
+
+.progress-wrap{background:var(--dark);padding:0 20px 16px;}
+.steps-bar{display:flex;gap:3px;max-width:700px;margin:0 auto;}
+.step-dot{flex:1;height:3px;background:rgba(255,255,255,.1);border-radius:2px;transition:background .3s;}
+.step-dot.done{background:var(--accent);}
+.step-dot.active{background:var(--accent-soft);}
+.progress-text{text-align:center;font-size:11px;color:rgba(250,246,241,.35);margin-top:6px;}
+
+/* ===== CONTAINER ===== */
+.container{max-width:640px;margin:0 auto;padding:24px 16px 80px;}
+
+/* ===== CARD QUESTION ===== */
+.card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;display:none;animation:slideUp .3s ease;box-shadow:var(--shadow);}
+.card.active{display:block;}
+@keyframes slideUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+
+.card-section{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+.card-step{font-size:11px;color:var(--text-light);margin-bottom:14px;}
+.card-question{font-family:var(--font-heading);font-size:19px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:6px;}
+.card-hint{font-size:13px;color:var(--text-light);line-height:1.55;margin-bottom:18px;font-style:italic;}
+
+textarea,input[type=text],input[type=email],input[type=tel],input[type=url],input[type=number]{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--cream);font-family:var(--font-body);font-size:14px;color:var(--text);transition:all .2s;-webkit-appearance:none;}
+textarea{min-height:100px;resize:vertical;line-height:1.6;}
+textarea:focus,input:focus{outline:none;border-color:var(--accent);background:var(--card-bg);box-shadow:0 0 0 3px rgba(192,106,53,.1);}
+
+select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--cream);font-family:var(--font-body);font-size:14px;color:var(--text);cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%237a7568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+select:focus{outline:none;border-color:var(--accent);}
+
+.options{display:flex;flex-direction:column;gap:7px;}
+.opt{display:flex;align-items:flex-start;gap:11px;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--cream);cursor:pointer;transition:all .18s;font-size:13px;line-height:1.4;color:var(--charcoal-light);}
+.opt:hover{border-color:var(--accent-soft);background:var(--warm);}
+.opt.sel{border-color:var(--accent);background:var(--warm);color:var(--accent);font-weight:600;}
+.opt input{width:16px;height:16px;accent-color:var(--accent);flex-shrink:0;margin-top:1px;}
+
+.choices{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;}
+.choice-btn{background:var(--cream);border:1.5px solid var(--border);border-radius:20px;padding:7px 15px;font-size:13px;cursor:pointer;font-family:var(--font-body);color:var(--charcoal-light);transition:all .2s;}
+.choice-btn:hover{border-color:var(--accent);color:var(--accent);}
+.choice-btn.selected{background:var(--accent);border-color:var(--accent);color:white;font-weight:600;}
+
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:500px){.g2{grid-template-columns:1fr;}}
+
+/* VOICE BUTTON */
+.voice-btn{display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:var(--cream);border:1.5px solid var(--border);color:var(--text-light);padding:7px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s;user-select:none;}
+.voice-btn:hover{border-color:var(--accent);color:var(--accent);}
+.voice-btn.recording{background:var(--red);border-color:var(--red);color:white;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.7;}}
+.voice-icon{font-size:14px;}
+.no-voice-msg{font-size:11px;color:var(--text-light);margin-top:6px;}
+
+/* NAVIGATION */
+.nav{display:flex;align-items:center;gap:10px;margin-top:24px;}
+.btn-back{padding:10px 18px;background:var(--cream-deep);color:var(--charcoal-light);border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-back:hover{background:var(--border);}
+.btn-next{flex:1;padding:13px 20px;background:var(--charcoal);color:var(--cream);border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-next:hover{background:var(--dark);transform:translateY(-1px);}
+.btn-submit{flex:1;padding:14px 20px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-family:var(--font-heading);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn-submit:hover{background:var(--accent-hover);transform:translateY(-1px);}
+
+/* SAVE INDICATOR */
+.save-indicator{position:fixed;bottom:20px;right:20px;background:var(--charcoal);color:var(--cream);padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:100;}
+.save-indicator.show{opacity:1;}
+
+/* ===== SYNTHÈSE ===== */
+#synthese-view{display:none;}
+.syn-hero{background:linear-gradient(135deg,#2c2a27,#1e1d1b);border-radius:var(--radius);padding:28px 24px;margin-bottom:18px;color:var(--cream);text-align:center;}
+.syn-hero h2{font-family:var(--font-heading);font-size:22px;font-weight:700;margin-bottom:6px;}
+.syn-hero p{font-size:13px;color:rgba(250,246,241,.5);}
+
+.syn-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:22px 20px;margin-bottom:14px;box-shadow:var(--shadow);}
+.syn-card h3{font-size:11px;font-family:var(--font-body);font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--accent);margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--cream-deep);}
+.syn-card p,.syn-card li{font-size:14px;color:var(--text);line-height:1.6;}
+.syn-card ul{padding-left:18px;}
+.syn-card li{margin-bottom:5px;}
+.syn-card strong{color:var(--charcoal);}
+.syn-card em{color:var(--text-light);}
+
+.syn-quote{background:var(--warm);border-left:4px solid var(--accent);padding:14px 18px;border-radius:6px;font-style:italic;font-size:14px;color:var(--accent);line-height:1.6;margin-top:8px;}
+
+.syn-actions{margin-top:24px;display:flex;flex-direction:column;gap:10px;align-items:center;}
+.syn-actions button{width:100%;max-width:400px;padding:13px;border-radius:var(--radius-sm);font-family:var(--font-heading);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-send{background:var(--accent);color:white;border:none;}
+.btn-send:hover{background:var(--accent-hover);}
+.btn-print{background:transparent;color:var(--text-light);border:1.5px solid var(--border);}
+.btn-restart{background:transparent;color:var(--text-light);border:1.5px solid var(--border);font-family:var(--font-body);font-size:13px;}
+.syn-note{text-align:center;font-size:12px;color:var(--text-light);margin-top:4px;}
+
+@media print{
+  .hero,.progress-wrap,.syn-actions,.nav,.save-indicator,.splash{display:none!important;}
+  .syn-card{break-inside:avoid;}
+  body{background:white;}
+  .container{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== ÉCRAN DE CHOIX TEMPLATE ===== -->
+<div class="splash" id="splash">
+  <div class="splash-logo">Fabien Granier · Pilote Marketing</div>
+  <h1>Bienvenue</h1>
+  <p>Un questionnaire pour clarifier votre activité, vos clients et votre communication. Prenez le temps qu'il vous faut.</p>
+
+  <div class="template-cards">
+    <div class="template-card" onclick="startTemplate('lancement')">
+      <div class="tc-icon">🚀</div>
+      <h3>Lancement</h3>
+      <p>Vous préparez une ouverture ou un lancement. Ce questionnaire couvre votre histoire, vos clients, votre offre et votre communication.</p>
+      <div class="tc-meta">26 questions · ~20 min</div>
+    </div>
+    <div class="template-card" onclick="startTemplate('audit')">
+      <div class="tc-icon">📋</div>
+      <h3>Audit marketing</h3>
+      <p>Votre activité existe déjà. Un diagnostic de votre positionnement, votre communication et vos canaux digitaux.</p>
+      <div class="tc-meta">32 questions · ~15 min</div>
+    </div>
+  </div>
+
+  <div class="resume-banner" id="resume-banner" style="display:none;">
+    <span>📌 Vous avez un questionnaire en cours.</span>
+    <button onclick="resumeSaved()">Reprendre</button>
+    <button class="resume-dismiss" onclick="dismissResume()">Nouveau</button>
+  </div>
+</div>
+
+<!-- ===== QUESTIONNAIRE ===== -->
+<div id="questionnaire-view" style="display:none;">
+
+<div class="hero" id="hero">
+  <div class="hero-badge" id="hero-badge">Questionnaire</div>
+  <h1 id="hero-title">Votre lancement</h1>
+  <div class="hero-sub" id="hero-sub">Répondez comme vous parleriez à un ami. Si une question ne vous parle pas, passez-la.</div>
+  <div class="hero-meta">
+    <span>🎙 Réponse vocale disponible</span>
+    <span>💾 Sauvegarde automatique</span>
+    <span id="hero-time">📋 ~20 min</span>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="steps-bar" id="steps-bar"></div>
+  <div class="progress-text" id="progress-text">1 / 26</div>
+</div>
+
+<div class="container" id="cards-container">
+  <!-- Cards are generated by JS -->
+</div>
+
+</div>
+
+<!-- ===== SYNTHÈSE ===== -->
+<div id="synthese-view" style="display:none;">
+<div class="container" style="padding-top:32px;">
+
+  <div class="syn-hero">
+    <h2>Synthèse de vos réponses</h2>
+    <p id="syn-date">—</p>
+  </div>
+
+  <div id="syn-cards"></div>
+
+  <div class="syn-actions">
+    <button class="btn-send" onclick="sendByEmail()">📧 Envoyer mes réponses à Fabien</button>
+    <div class="syn-note">Ouvre votre application email avec tout pré-rempli.</div>
+    <button class="btn-print" onclick="window.print()">🖨️ Télécharger en PDF</button>
+    <button class="btn-restart" onclick="resetAll()">↩ Recommencer un nouveau questionnaire</button>
+  </div>
+
+</div>
+</div>
+
+<div class="save-indicator" id="save-indicator">💾 Sauvegardé</div>
+
+<script>
+// ===== TEMPLATES =====
+const TEMPLATES = {
+  lancement: {
+    badge: 'Lancement',
+    title: 'Préparer votre <em>lancement</em>',
+    sub: 'Répondez comme vous parleriez à un ami. Si une question ne vous parle pas, passez-la.',
+    time: '📋 ~20 min',
+    sections: [
+      {
+        name: 'Votre histoire',
+        questions: [
+          {id:'l1', q:'Comment avez-vous découvert les bains froids et le sauna ? Qu\'est-ce qui vous a accroché personnellement ?', hint:'Votre histoire personnelle avec cette pratique.', type:'textarea'},
+          {id:'l2', q:'À quel moment avez-vous décidé d\'en faire une activité ? Qu\'est-ce qui a déclenché le passage à l\'acte ?', hint:'Le déclic, le moment où l\'idée est devenue un projet.', type:'textarea'},
+          {id:'l3', q:'Si vous deviez expliquer ce que vous proposez à quelqu\'un qui n\'a jamais entendu parler de bains froids, vous diriez quoi ?', hint:'Sans jargon. Ce que la personne va vivre concrètement.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'Vos futurs clients',
+        questions: [
+          {id:'l4', q:'Qui voyez-vous venir chez vous en priorité ? Décrivez cette personne.', hint:'Son âge, sa situation, ce qu\'elle vit au quotidien, ce qu\'elle cherche.', type:'textarea'},
+          {id:'l5', q:'Qu\'est-ce que cette personne ressent avant de venir ? Quel problème ou quel manque la pousse à chercher une solution ?', hint:'Dans ses mots à elle, pas les vôtres. Ce qu\'elle dirait à une amie.', type:'textarea'},
+          {id:'l6', q:'Qu\'est-ce qu\'elle a déjà essayé pour résoudre ce problème ? Pourquoi ça n\'a pas suffi ?', hint:'Les fausses solutions : étirements, repos, douche froide chez soi, spa classique, rien du tout...', type:'textarea'},
+          {id:'l7', q:'Imaginez cette personne 2 heures après sa première séance. Elle est dans sa voiture sur le parking. Comment elle se sent ? Qu\'est-ce qui a changé ?', hint:'Le concret, le physique, l\'état d\'esprit. Pas un slogan, un ressenti.', type:'textarea'},
+          {id:'l8', q:'Et après 4 ou 5 séances, qu\'est-ce qui change dans sa vie ?', hint:'La transformation durable, pas juste l\'effet immédiat.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'Le protocole',
+        questions: [
+          {id:'l9', q:'Décrivez exactement ce qui se passe quand quelqu\'un arrive chez vous, du début à la fin.', hint:'L\'accueil, l\'ordre des étapes, les durées, les températures, ce qu\'on dit, ce qu\'on fait.', type:'textarea'},
+          {id:'l10', q:'Quelle est la température du bain froid ? Du sauna ? Combien de temps dure chaque étape ?', hint:'Les chiffres précis.', type:'textarea'},
+          {id:'l11', q:'Y a-t-il un moment de repos entre les phases ? Comment se termine la séance ?', hint:'La phase de récupération, la tisane, le temps de retour au calme...', type:'textarea'},
+        ]
+      },
+      {
+        name: 'Ce qui vous rend unique',
+        questions: [
+          {id:'l12', q:'En quoi votre lieu est-il différent d\'un spa, d\'une thalasso ou d\'une salle de sport avec hammam ?', hint:'Ce qu\'on ne trouvera pas ailleurs, l\'atmosphère, l\'approche.', type:'textarea'},
+          {id:'l13', q:'Quelqu\'un pourrait se dire "je peux prendre une douche froide chez moi, pourquoi venir chez vous ?" Que répondriez-vous ?', hint:'L\'argument qui fait la différence.', type:'textarea'},
+          {id:'l14', q:'Décrivez le lieu physiquement. Qu\'est-ce qu\'on voit, qu\'on sent, qu\'on entend en arrivant ?', hint:'Le bois, la lumière, les odeurs, l\'ambiance. On veut "voir" l\'endroit.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'L\'objection',
+        questions: [
+          {id:'l15', q:'L\'objection que vous entendez le plus souvent quand vous parlez de bains froids, c\'est quoi ?', hint:'Ce que les gens disent spontanément. "J\'ai trop froid", "c\'est pour les sportifs", "c\'est dangereux"...', type:'textarea'},
+          {id:'l16', q:'Et vous, quand on vous dit ça, vous répondez quoi ?', hint:'Votre réponse naturelle, comme si vous parliez à quelqu\'un en face de vous.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'La communication',
+        questions: [
+          {id:'l17', q:'Si votre lieu était une personne, il serait comment ? Donnez 3-4 adjectifs.', hint:'Ex : chaleureux, brut, authentique, apaisant, premium, sportif, cocooning...', type:'text'},
+          {id:'l18', q:'Vous préférez un ton tutoiement ou vouvoiement pour votre communication ?', hint:'', type:'choice', choices:['Vouvoiement','Tutoiement','Ça dépend du canal','Je ne sais pas']},
+          {id:'l19', q:'Y a-t-il des mots, des expressions ou un vocabulaire que vous utilisez naturellement en parlant de votre activité ?', hint:'Des mots qui reviennent souvent quand vous expliquez ce que vous faites.', type:'textarea'},
+          {id:'l20', q:'Y a-t-il des choses que vous ne voulez surtout PAS voir dans votre communication ?', hint:'Des tons, des mots, des approches qui vous rebutent.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'Le lancement',
+        questions: [
+          {id:'l21', q:'À quel tarif pensez-vous proposer une séance ? Avez-vous réfléchi à des formules (carte, abonnement, duo) ?', hint:'Même si ce n\'est pas fixé, vos premières idées.', type:'textarea'},
+          {id:'l22', q:'Seriez-vous ouverte à une offre de lancement pour les premiers inscrits ? Si oui, quel type ?', hint:'Ex : tarif réduit les 3 premiers mois, séance offerte, carte de 10 au prix de 8...', type:'textarea'},
+          {id:'l23', q:'Vous avez un partenariat avec le SCA (club de rugby d\'Albi). Comment ça s\'est fait ? Qu\'est-ce qui est prévu ?', hint:'La date, le nombre de joueurs, ce qu\'ils vont faire, ce que vous avez négocié en échange.', type:'textarea'},
+          {id:'l24', q:'Avez-vous d\'autres partenariats ou collaborations en vue pour le lancement ?', hint:'Salle de sport, kiné, ostéo, influenceurs locaux, mairie, office de tourisme...', type:'textarea'},
+          {id:'l25', q:'Quel budget seriez-vous prête à mettre dans la communication pour le lancement ?', hint:'Même 0€ est une réponse valable. On adapte la stratégie au budget.', type:'choice', choices:['0 € — uniquement du gratuit','Moins de 100 €/mois','100 à 300 €/mois','300 à 500 €/mois','Plus de 500 €/mois','Je ne sais pas encore']},
+          {id:'l26', q:'Y a-t-il autre chose d\'important que je devrais savoir et que ce questionnaire n\'a pas couvert ?', hint:'Tout ce qui vous passe par la tête. Un doute, une idée, une contrainte, une envie.', type:'textarea'},
+        ]
+      }
+    ]
+  },
+  audit: {
+    badge: 'Audit marketing',
+    title: 'Diagnostic marketing <em>de votre entreprise</em>',
+    sub: 'Un état des lieux honnête de votre situation. Prenez le temps qu\'il faut.',
+    time: '📋 ~15 min',
+    sections: [
+      {
+        name: 'Identité',
+        questions: [
+          {id:'a1', q:'Quel est le nom de votre entreprise ?', hint:'', type:'text'},
+          {id:'a2', q:'Quel est votre secteur d\'activité ?', hint:'', type:'select', options:['Alimentation & Boissons artisanales','Agriculture & Producteurs locaux','Cosmétiques & Bien-être','Mode & Textile','Décoration & Artisanat','Restauration & Hôtellerie','Services aux entreprises','Commerce de détail','Bâtiment & Artisanat','Santé & Médical','Sport & Loisirs','Formation & Coaching','Immobilier','Autre']},
+          {id:'a3', q:'Où êtes-vous situé ?', hint:'Ville et région.', type:'text'},
+          {id:'a4', q:'Depuis quand votre entreprise existe-t-elle ?', hint:'', type:'select', options:['Moins d\'1 an','1 à 3 ans','3 à 5 ans','5 à 10 ans','Plus de 10 ans']},
+          {id:'a5', q:'Combien de personnes travaillent dans votre entreprise ?', hint:'', type:'select', options:['Solo','2 à 5','6 à 20','21 à 50','Plus de 50']},
+          {id:'a6', q:'Décrivez votre activité en 2-3 phrases.', hint:'Quoi, pour qui, avec quelle approche.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'Positionnement',
+        questions: [
+          {id:'a7', q:'Quelle est votre promesse principale ?', hint:'Ce que vous garantissez implicitement à vos clients.', type:'textarea'},
+          {id:'a8', q:'En quoi êtes-vous différent de vos concurrents ?', hint:'Soyez précis. Évitez "qualité" et "service" sans les expliquer.', type:'textarea'},
+          {id:'a9', q:'Comment vos meilleurs clients vous décrivent-ils à leurs proches ?', hint:'Le bouche-à-oreille naturel. Ce qu\'ils disent de vous sans que vous le sachiez.', type:'textarea'},
+          {id:'a10', q:'Quel est votre positionnement prix ?', hint:'', type:'choice', choices:['Entrée de gamme','Milieu de gamme','Haut de gamme','Luxe / ultra-premium']},
+        ]
+      },
+      {
+        name: 'Clients',
+        questions: [
+          {id:'a11', q:'Décrivez votre client idéal.', hint:'Pas un profil générique. La vraie personne qui achète le plus et revient.', type:'textarea'},
+          {id:'a12', q:'Quel est son problème ou son désir principal ?', hint:'Ce qui le pousse à chercher une solution comme la vôtre.', type:'textarea'},
+          {id:'a13', q:'Quelles sont vos 3 principales objections clients ?', hint:'Ce qui freine vos prospects avant d\'acheter.', type:'textarea'},
+          {id:'a14', q:'Votre marché est plutôt...', hint:'', type:'choice', choices:['Local — commune ou agglomération','Régional — département ou région','National','International']},
+        ]
+      },
+      {
+        name: 'Communication',
+        questions: [
+          {id:'a15', q:'Quels canaux de communication utilisez-vous actuellement ?', hint:'Cochez tout ce qui s\'applique.', type:'multi', choices:['Bouche-à-oreille','Réseaux sociaux','Site web','Email marketing / newsletter','Publicité payante','Presse locale / événements / salons','Aucun']},
+          {id:'a16', q:'Sur 10, à quel point êtes-vous satisfait de votre communication actuelle ?', hint:'1 = pas du tout, 10 = très satisfait.', type:'select', options:['1','2','3','4','5','6','7','8','9','10']},
+          {id:'a17', q:'Quel est votre plus gros manque en communication ?', hint:'Ce qui vous frustre le plus ou ce que vous aimeriez améliorer en priorité.', type:'textarea'},
+          {id:'a18', q:'Si vous stoppez toute communication pendant 3 mois, que se passe-t-il ?', hint:'', type:'choice', choices:['Rien de grave — les clients viennent naturellement','Légère baisse d\'activité','Forte baisse — on dépend de la visibilité','On disparaît — sans com\', plus de clients']},
+        ]
+      },
+      {
+        name: 'Présence digitale',
+        questions: [
+          {id:'a19', q:'Quelle est votre présence en ligne ?', hint:'', type:'choice', choices:['Site e-commerce complet','Site vitrine','Réseaux sociaux uniquement','Fiche Google My Business uniquement','Aucune présence en ligne']},
+          {id:'a20', q:'Quelle part de votre chiffre d\'affaires vient du digital ?', hint:'', type:'choice', choices:['0%','Moins de 10%','10 à 30%','30 à 60%','Plus de 60%']},
+          {id:'a21', q:'Avez-vous une base de contacts email ?', hint:'', type:'choice', choices:['Oui, structurée et utilisée régulièrement','Oui, mais rarement exploitée','Quelques contacts épars','Non, aucune base constituée']},
+          {id:'a22', q:'Utilisez-vous la publicité payante (Meta Ads, Google Ads) ?', hint:'', type:'choice', choices:['Oui, régulièrement','De temps en temps sans méthode','Non, jamais','J\'ai essayé, ça n\'a pas marché']},
+        ]
+      },
+      {
+        name: 'Objectifs',
+        questions: [
+          {id:'a23', q:'Quels sont vos 3 objectifs prioritaires pour les 12 prochains mois ?', hint:'Des chiffres si possible.', type:'textarea'},
+          {id:'a24', q:'Quelles sont vos priorités concrètes ?', hint:'Cochez tout ce qui s\'applique.', type:'multi', choices:['Trouver de nouveaux clients','Fidéliser les clients existants','Augmenter le panier moyen','Développer la vente en ligne','Améliorer la notoriété locale','Lancer un nouveau produit ou service']},
+          {id:'a25', q:'Qu\'est-ce qui vous freine le plus aujourd\'hui ?', hint:'Le vrai frein, celui que vous ne dites pas forcément aux autres.', type:'textarea'},
+          {id:'a26', q:'Quel budget marketing mensuel avez-vous ?', hint:'', type:'choice', choices:['Moins de 100 €/mois','100 à 300 €/mois','300 à 600 €/mois','600 à 1 500 €/mois','Plus de 1 500 €/mois']},
+        ]
+      },
+      {
+        name: 'Vision',
+        questions: [
+          {id:'a27', q:'Dans 3 à 5 ans, vous vous voyez où ?', hint:'L\'entreprise idéale. Soyez concret.', type:'textarea'},
+          {id:'a28', q:'Quelle est votre ambition de croissance ?', hint:'', type:'choice', choices:['Stabiliser l\'activité','Croissance modérée (+10 à 30%)','Forte croissance (doubler l\'activité)','Transformation majeure du modèle']},
+          {id:'a29', q:'Quels sont vos points forts sur lesquels construire l\'avenir ?', hint:'Ce que vous faites mieux que les autres, vos atouts.', type:'textarea'},
+        ]
+      },
+      {
+        name: 'Contact',
+        questions: [
+          {id:'a30', q:'Votre prénom et nom', hint:'', type:'text'},
+          {id:'a31', q:'Votre email', hint:'Pour recevoir votre synthèse.', type:'text'},
+          {id:'a32', q:'Quelque chose d\'important que le formulaire n\'a pas couvert ?', hint:'Tout ce qui peut aider à comprendre votre situation.', type:'textarea'},
+        ]
+      }
+    ]
+  }
+};
+
+// ===== STATE =====
+let currentTemplate = null;
+let currentStep = 0;
+let allQuestions = [];
+let responses = {};
+
+// ===== INIT =====
+function init() {
+  checkSavedSession();
+}
+
+function checkSavedSession() {
+  const saved = localStorage.getItem('questionnaire_session');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      if (data.template && data.responses && Object.keys(data.responses).length > 0) {
+        document.getElementById('resume-banner').style.display = 'flex';
+      }
+    } catch(e) {}
+  }
+}
+
+function resumeSaved() {
+  const saved = JSON.parse(localStorage.getItem('questionnaire_session'));
+  currentTemplate = saved.template;
+  responses = saved.responses || {};
+  currentStep = saved.step || 0;
+  buildQuestionnaire();
+  restoreResponses();
+  showCard(currentStep);
+}
+
+function dismissResume() {
+  localStorage.removeItem('questionnaire_session');
+  document.getElementById('resume-banner').style.display = 'none';
+}
+
+function startTemplate(tpl) {
+  localStorage.removeItem('questionnaire_session');
+  currentTemplate = tpl;
+  responses = {};
+  currentStep = 0;
+  buildQuestionnaire();
+  showCard(0);
+}
+
+// ===== BUILD QUESTIONNAIRE =====
+function buildQuestionnaire() {
+  const tpl = TEMPLATES[currentTemplate];
+  document.getElementById('splash').style.display = 'none';
+  document.getElementById('questionnaire-view').style.display = 'block';
+
+  document.getElementById('hero-badge').textContent = tpl.badge;
+  document.getElementById('hero-title').innerHTML = tpl.title;
+  document.getElementById('hero-sub').textContent = tpl.sub;
+  document.getElementById('hero-time').textContent = tpl.time;
+
+  // Flatten questions
+  allQuestions = [];
+  tpl.sections.forEach(sec => {
+    sec.questions.forEach(q => {
+      allQuestions.push({...q, section: sec.name});
+    });
+  });
+
+  // Build progress dots
+  const bar = document.getElementById('steps-bar');
+  bar.innerHTML = '';
+  for (let i = 0; i < allQuestions.length; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot';
+    dot.id = 'dot-' + i;
+    bar.appendChild(dot);
+  }
+
+  // Build cards
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  allQuestions.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-' + i;
+
+    let inputHtml = '';
+    switch(q.type) {
+      case 'textarea':
+        inputHtml = `<textarea id="${q.id}" placeholder="Répondez librement..." oninput="onInput('${q.id}')"></textarea>
+          <button class="voice-btn" onclick="toggleVoice('${q.id}', this)"><span class="voice-icon">🎙</span> Répondre à l'oral</button>`;
+        break;
+      case 'text':
+        inputHtml = `<input type="text" id="${q.id}" placeholder="Votre réponse..." oninput="onInput('${q.id}')">
+          <button class="voice-btn" onclick="toggleVoice('${q.id}', this)"><span class="voice-icon">🎙</span> Répondre à l'oral</button>`;
+        break;
+      case 'choice':
+        inputHtml = '<div class="options">';
+        q.choices.forEach(c => {
+          inputHtml += `<label class="opt" onclick="selectChoice('${q.id}', '${c.replace(/'/g,"\\'")}', this)"><input type="radio" name="${q.id}" value="${c}"> ${c}</label>`;
+        });
+        inputHtml += '</div><input type="hidden" id="' + q.id + '">';
+        break;
+      case 'multi':
+        inputHtml = '<div class="choices" id="choices-' + q.id + '">';
+        q.choices.forEach(c => {
+          inputHtml += `<span class="choice-btn" onclick="toggleMulti(this, '${q.id}')">${c}</span>`;
+        });
+        inputHtml += '</div><input type="hidden" id="' + q.id + '">';
+        break;
+      case 'select':
+        inputHtml = `<select id="${q.id}" onchange="onInput('${q.id}')"><option value="">Choisir...</option>`;
+        q.options.forEach(o => {
+          inputHtml += `<option value="${o}">${o}</option>`;
+        });
+        inputHtml += '</select>';
+        break;
+    }
+
+    const isLast = i === allQuestions.length - 1;
+    let navHtml = '<div class="nav">';
+    if (i > 0) navHtml += `<button class="btn-back" onclick="goTo(${i - 1})">←</button>`;
+    if (isLast) {
+      navHtml += `<button class="btn-submit" onclick="showSynthese()">Voir ma synthèse →</button>`;
+    } else {
+      navHtml += `<button class="btn-next" onclick="goTo(${i + 1})">Continuer →</button>`;
+    }
+    navHtml += '</div>';
+
+    card.innerHTML = `
+      <div class="card-section">${q.section}</div>
+      <div class="card-step">Question ${i + 1} sur ${allQuestions.length}</div>
+      <div class="card-question">${q.q}</div>
+      ${q.hint ? '<div class="card-hint">' + q.hint + '</div>' : ''}
+      ${inputHtml}
+      ${navHtml}
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function restoreResponses() {
+  allQuestions.forEach(q => {
+    const el = document.getElementById(q.id);
+    if (el && responses[q.id]) {
+      el.value = responses[q.id];
+      // Restore visual state for choices
+      if (q.type === 'choice') {
+        const opts = el.closest('.card') || document.getElementById('card-' + allQuestions.indexOf(q));
+        if (opts) {
+          opts.querySelectorAll('.opt').forEach(opt => {
+            const radio = opt.querySelector('input[type=radio]');
+            if (radio && radio.value === responses[q.id]) {
+              opt.classList.add('sel');
+              radio.checked = true;
+            }
+          });
+        }
+      }
+      if (q.type === 'multi') {
+        const vals = responses[q.id].split(', ');
+        const btns = document.querySelectorAll('#choices-' + q.id + ' .choice-btn');
+        btns.forEach(btn => {
+          if (vals.includes(btn.textContent.trim())) btn.classList.add('selected');
+        });
+      }
+    }
+  });
+}
+
+// ===== NAVIGATION =====
+function showCard(idx) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+  const card = document.getElementById('card-' + idx);
+  if (card) card.classList.add('active');
+  currentStep = idx;
+  updateProgress();
+  window.scrollTo({top: document.getElementById('hero').offsetTop, behavior: 'smooth'});
+}
+
+function goTo(idx) {
+  saveSession();
+  showCard(idx);
+}
+
+function updateProgress() {
+  for (let i = 0; i < allQuestions.length; i++) {
+    const dot = document.getElementById('dot-' + i);
+    if (!dot) continue;
+    dot.className = 'step-dot';
+    if (i < currentStep) dot.classList.add('done');
+    else if (i === currentStep) dot.classList.add('active');
+    // Also mark done if has response
+    if (responses[allQuestions[i].id]) dot.classList.add('done');
+  }
+  document.getElementById('progress-text').textContent = (currentStep + 1) + ' / ' + allQuestions.length;
+}
+
+// ===== INPUT HANDLING =====
+function onInput(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    responses[id] = el.value.trim();
+    saveSession();
+    updateProgress();
+  }
+}
+
+function selectChoice(id, value, optEl) {
+  responses[id] = value;
+  document.getElementById(id).value = value;
+  // Visual
+  const card = optEl.closest('.card');
+  card.querySelectorAll('.opt').forEach(o => o.classList.remove('sel'));
+  optEl.classList.add('sel');
+  saveSession();
+  updateProgress();
+}
+
+const multiValues = {};
+function toggleMulti(btn, id) {
+  btn.classList.toggle('selected');
+  if (!multiValues[id]) multiValues[id] = [];
+  const val = btn.textContent.trim();
+  const idx = multiValues[id].indexOf(val);
+  if (idx > -1) multiValues[id].splice(idx, 1);
+  else multiValues[id].push(val);
+  const combined = multiValues[id].join(', ');
+  document.getElementById(id).value = combined;
+  responses[id] = combined;
+  saveSession();
+  updateProgress();
+}
+
+// ===== SAVE / RESTORE =====
+function saveSession() {
+  const data = {
+    template: currentTemplate,
+    step: currentStep,
+    responses: responses,
+    savedAt: new Date().toISOString()
+  };
+  localStorage.setItem('questionnaire_session', JSON.stringify(data));
+  showSaveIndicator();
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('save-indicator');
+  el.classList.add('show');
+  clearTimeout(el._timer);
+  el._timer = setTimeout(() => el.classList.remove('show'), 1500);
+}
+
+// ===== VOICE =====
+let recognition = null;
+let currentRecTarget = null;
+let currentVoiceBtn = null;
+let isRecording = false;
+
+function initRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const rec = new SR();
+  rec.lang = 'fr-FR';
+  rec.continuous = true;
+  rec.interimResults = true;
+  rec.onresult = function(e) {
+    let transcript = '';
+    for (let i = 0; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    const el = document.getElementById(currentRecTarget);
+    if (el) {
+      el.value = transcript;
+      responses[currentRecTarget] = transcript;
+    }
+    updateProgress();
+  };
+  rec.onerror = function() { stopVoice(); };
+  rec.onend = function() { if (isRecording) stopVoice(); };
+  return rec;
+}
+
+function toggleVoice(fieldId, btn) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    btn.style.display = 'none';
+    const msg = document.createElement('p');
+    msg.className = 'no-voice-msg';
+    msg.textContent = 'Reconnaissance vocale non disponible. Utilisez Chrome ou Edge.';
+    btn.parentNode.insertBefore(msg, btn.nextSibling);
+    return;
+  }
+  if (isRecording && currentRecTarget === fieldId) {
+    stopVoice();
+    saveSession();
+    return;
+  }
+  if (isRecording) stopVoice();
+
+  recognition = initRecognition();
+  currentRecTarget = fieldId;
+  currentVoiceBtn = btn;
+  isRecording = true;
+  btn.classList.add('recording');
+  btn.innerHTML = '<span class="voice-icon">⏹</span> Arrêter';
+  recognition.start();
+}
+
+function stopVoice() {
+  isRecording = false;
+  if (recognition) { recognition.stop(); recognition = null; }
+  if (currentVoiceBtn) {
+    currentVoiceBtn.classList.remove('recording');
+    currentVoiceBtn.innerHTML = '<span class="voice-icon">🎙</span> Répondre à l\'oral';
+    currentVoiceBtn = null;
+  }
+  currentRecTarget = null;
+}
+
+// ===== SYNTHÈSE =====
+function showSynthese() {
+  saveSession();
+  if (isRecording) stopVoice();
+
+  const tpl = TEMPLATES[currentTemplate];
+  document.getElementById('questionnaire-view').style.display = 'none';
+  document.getElementById('synthese-view').style.display = 'block';
+
+  const now = new Date();
+  document.getElementById('syn-date').textContent = tpl.badge + ' — ' + now.toLocaleDateString('fr-FR', {day:'numeric', month:'long', year:'numeric'});
+
+  const synCards = document.getElementById('syn-cards');
+  synCards.innerHTML = '';
+
+  tpl.sections.forEach(sec => {
+    const card = document.createElement('div');
+    card.className = 'syn-card';
+
+    let content = '<h3>' + sec.name + '</h3>';
+    let hasContent = false;
+
+    sec.questions.forEach(q => {
+      const val = responses[q.id];
+      if (val && val.trim()) {
+        hasContent = true;
+        const shortQ = q.q.length > 80 ? q.q.substring(0, 77) + '...' : q.q;
+        content += '<p style="margin-bottom:12px;"><strong style="font-size:12px;color:var(--text-light);text-transform:uppercase;letter-spacing:.5px;">' + shortQ + '</strong><br>' + escapeHtml(val) + '</p>';
+      }
+    });
+
+    if (!hasContent) {
+      content += '<p><em>Pas de réponse dans cette section.</em></p>';
+    }
+
+    card.innerHTML = content;
+    synCards.appendChild(card);
+  });
+
+  window.scrollTo(0, 0);
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== SEND EMAIL =====
+function sendByEmail() {
+  const tpl = TEMPLATES[currentTemplate];
+  let body = "Bonjour Fabien,\n\nVoici mes réponses au questionnaire (" + tpl.badge + ").\n\n";
+  body += "=================================\n\n";
+
+  tpl.sections.forEach(sec => {
+    body += "--- " + sec.name.toUpperCase() + " ---\n\n";
+    sec.questions.forEach(q => {
+      const val = responses[q.id] || '(pas de réponse)';
+      body += q.q + "\n" + val + "\n\n";
+    });
+  });
+
+  body += "=================================\n";
+
+  const subject = encodeURIComponent("Questionnaire " + tpl.badge + " — mes réponses");
+  const bodyEnc = encodeURIComponent(body);
+
+  // Check if mailto would be too long (2000 chars URL limit on some clients)
+  const mailto = "mailto:granierfabien@hotmail.fr?subject=" + subject + "&body=" + bodyEnc;
+
+  if (mailto.length > 2000) {
+    // Copy to clipboard instead
+    navigator.clipboard.writeText(body).then(() => {
+      alert("Le questionnaire est trop long pour un lien email. Le contenu a été copié dans votre presse-papier. Collez-le dans un email à granierfabien@hotmail.fr");
+    }).catch(() => {
+      // Fallback: open with truncated body
+      window.location.href = mailto;
+    });
+  } else {
+    window.location.href = mailto;
+  }
+}
+
+// ===== RESET =====
+function resetAll() {
+  if (confirm('Recommencer un nouveau questionnaire ? Vos réponses actuelles seront supprimées.')) {
+    localStorage.removeItem('questionnaire_session');
+    location.reload();
+  }
+}
+
+// ===== URL PARAMS =====
+function checkUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const tpl = params.get('t') || params.get('template');
+  if (tpl && TEMPLATES[tpl]) {
+    startTemplate(tpl);
+  }
+}
+
+// ===== KEYBOARD =====
+document.addEventListener('keydown', function(e) {
+  if (document.getElementById('questionnaire-view').style.display === 'none') return;
+  if (e.key === 'Enter' && !e.shiftKey && e.target.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    if (currentStep < allQuestions.length - 1) goTo(currentStep + 1);
+  }
+});
+
+// INIT
+init();
+checkUrlParams();
+</script>
+</body>
+</html>
