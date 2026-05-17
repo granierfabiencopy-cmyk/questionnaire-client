@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CRM · Fabien Granier</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #faf6f1;
+  --cream-deep: #f3ece3;
+  --warm: #f5efe6;
+  --charcoal: #2c2a27;
+  --charcoal-light: #5c5750;
+  --text: #2c2a27;
+  --text-light: #7a7568;
+  --accent: #c06a35;
+  --accent-hover: #a8582b;
+  --green: #4a7c59;
+  --green-soft: #e8f0ea;
+  --red: #c0392b;
+  --blue: #3b82f6;
+  --dark: #1e1d1b;
+  --border: #e5ddd3;
+  --card-bg: #ffffff;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 8px rgba(44,42,39,.06);
+  --font-heading: 'Lora', Georgia, serif;
+  --font-body: 'Nunito', -apple-system, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-body);background:var(--cream);color:var(--text);min-height:100vh;}
+
+/* LOGIN */
+.login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
+.login h1{font-family:var(--font-heading);font-size:22px;margin-bottom:20px;color:var(--charcoal);}
+.login input{padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;width:260px;text-align:center;background:var(--card-bg);}
+.login input:focus{outline:none;border-color:var(--accent);}
+.login button{margin-top:12px;padding:12px 32px;background:var(--charcoal);color:var(--cream);border:none;border-radius:var(--radius-sm);font-family:var(--font-body);font-size:14px;font-weight:700;cursor:pointer;}
+.login-error{color:var(--red);font-size:13px;margin-top:10px;display:none;}
+
+/* LAYOUT */
+.topbar{background:var(--dark);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-title{font-family:var(--font-heading);font-size:16px;font-weight:700;color:var(--cream);}
+.topbar-actions{display:flex;gap:10px;align-items:center;}
+.topbar-actions button{background:rgba(255,255,255,.1);color:var(--cream);border:none;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);}
+.topbar-actions button:hover{background:rgba(255,255,255,.2);}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;padding:20px;max-width:900px;margin:0 auto;}
+.stat{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center;box-shadow:var(--shadow);}
+.stat-value{font-family:var(--font-heading);font-size:28px;font-weight:700;color:var(--charcoal);}
+.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-top:4px;}
+
+.main{max-width:900px;margin:0 auto;padding:0 20px 60px;}
+
+/* LIST */
+.list-header{display:flex;align-items:center;justify-content:space-between;margin:20px 0 12px;padding:0 4px;}
+.list-header h2{font-family:var(--font-heading);font-size:18px;font-weight:700;}
+.filter-bar{display:flex;gap:6px;}
+.filter-btn{padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;background:var(--cream);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);color:var(--text-light);transition:all .15s;}
+.filter-btn:hover,.filter-btn.active{border-color:var(--accent);color:var(--accent);background:var(--warm);}
+
+.submission{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;transition:all .2s;}
+.submission:hover{box-shadow:0 4px 16px rgba(44,42,39,.1);}
+.sub-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;}
+.sub-avatar{width:36px;height:36px;border-radius:50%;background:var(--cream-deep);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--accent);flex-shrink:0;}
+.sub-info{flex:1;min-width:0;}
+.sub-name{font-weight:700;font-size:14px;color:var(--charcoal);}
+.sub-meta{font-size:11px;color:var(--text-light);margin-top:2px;}
+.sub-badges{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+.badge{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.badge-nouveau{background:#fef3c7;color:#92400e;}
+.badge-en_cours{background:#dbeafe;color:#1e40af;}
+.badge-traite{background:var(--green-soft);color:#065f46;}
+.badge-completed{background:var(--green-soft);color:var(--green);}
+.badge-progress{background:#fef3c7;color:#92400e;}
+.sub-progress{font-size:11px;color:var(--text-light);}
+
+.sub-detail{display:none;border-top:1px solid var(--cream-deep);padding:18px;background:var(--cream);}
+.sub-detail.open{display:block;}
+
+.detail-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.detail-actions select,.detail-actions input{padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);font-size:12px;background:var(--card-bg);}
+.detail-actions select:focus,.detail-actions input:focus{outline:none;border-color:var(--accent);}
+.detail-actions input{flex:1;min-width:200px;}
+.btn-save-note{padding:7px 16px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);}
+
+.response-section{margin-bottom:14px;}
+.response-section h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.response-item{margin-bottom:10px;}
+.response-q{font-size:11px;color:var(--text-light);font-weight:600;text-transform:uppercase;letter-spacing:.3px;margin-bottom:2px;}
+.response-a{font-size:13px;color:var(--text);line-height:1.5;background:var(--card-bg);padding:8px 12px;border-radius:6px;border:1px solid var(--border);}
+.response-empty{font-size:12px;color:var(--text-light);font-style:italic;}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-light);}
+.empty-state p{font-size:14px;margin-bottom:8px;}
+.empty-state span{font-size:12px;}
+
+@media(max-width:600px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .filter-bar{flex-wrap:wrap;}
+  .detail-actions{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="login">
+  <h1>CRM · Fabien Granier</h1>
+  <input type="password" id="login-pw" placeholder="Mot de passe" onkeydown="if(event.key==='Enter')checkLogin()">
+  <button onclick="checkLogin()">Entrer</button>
+  <p class="login-error" id="login-error">Mot de passe incorrect</p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none;">
+
+<div class="topbar">
+  <span class="topbar-title">CRM · Pilote Marketing</span>
+  <div class="topbar-actions">
+    <button onclick="loadSubmissions()">↻ Rafraîchir</button>
+    <button onclick="copyQuestionnaireLink()">📋 Lien questionnaire</button>
+    <button onclick="logout()">Déconnexion</button>
+  </div>
+</div>
+
+<div class="stats" id="stats">
+  <div class="stat"><div class="stat-value" id="stat-total">-</div><div class="stat-label">Total</div></div>
+  <div class="stat"><div class="stat-value" id="stat-nouveau">-</div><div class="stat-label">Nouveau</div></div>
+  <div class="stat"><div class="stat-value" id="stat-encours">-</div><div class="stat-label">En cours</div></div>
+  <div class="stat"><div class="stat-value" id="stat-traite">-</div><div class="stat-label">Traité</div></div>
+</div>
+
+<div class="main">
+  <div class="list-header">
+    <h2>Soumissions</h2>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterBy('all', this)">Tout</button>
+      <button class="filter-btn" onclick="filterBy('nouveau', this)">Nouveau</button>
+      <button class="filter-btn" onclick="filterBy('en_cours', this)">En cours</button>
+      <button class="filter-btn" onclick="filterBy('traite', this)">Traité</button>
+    </div>
+  </div>
+  <div id="submissions-list"></div>
+</div>
+
+</div>
+
+<script>
+const SUPABASE_URL = 'https://luekvhkynpvlfdejizhz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_bExpV0ZFCr_C0crqcun8lA_cCyDqZmc';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const CRM_PASSWORD = 'fabien2026';
+
+// Questions reference for display
+const SECTIONS = [
+  {
+    name: 'Votre histoire',
+    questions: [
+      {id:'l1', q:'Comment avez-vous découvert les bains froids et le sauna ?'},
+      {id:'l2', q:'À quel moment avez-vous décidé d\'en faire une activité ?'},
+      {id:'l3', q:'Si vous deviez expliquer ce que vous proposez à quelqu\'un qui n\'a jamais entendu parler de bains froids ?'},
+    ]
+  },
+  {
+    name: 'Vos futurs clients',
+    questions: [
+      {id:'l4', q:'Qui voyez-vous venir chez vous en priorité ?'},
+      {id:'l5', q:'Qu\'est-ce que cette personne ressent avant de venir ?'},
+      {id:'l6', q:'Qu\'est-ce qu\'elle a déjà essayé pour résoudre ce problème ?'},
+      {id:'l7', q:'2 heures après sa première séance, comment elle se sent ?'},
+      {id:'l8', q:'Après 4 ou 5 séances, qu\'est-ce qui change dans sa vie ?'},
+    ]
+  },
+  {
+    name: 'Le protocole',
+    questions: [
+      {id:'l9', q:'Décrivez ce qui se passe quand quelqu\'un arrive, du début à la fin.'},
+      {id:'l10', q:'Température du bain froid ? Du sauna ? Durée de chaque étape ?'},
+      {id:'l11', q:'Moment de repos entre les phases ? Comment se termine la séance ?'},
+    ]
+  },
+  {
+    name: 'Ce qui vous rend unique',
+    questions: [
+      {id:'l12', q:'En quoi votre lieu est-il différent d\'un spa ?'},
+      {id:'l13', q:'Pourquoi venir chez vous plutôt qu\'une douche froide chez soi ?'},
+      {id:'l14', q:'Décrivez le lieu physiquement.'},
+    ]
+  },
+  {
+    name: 'L\'objection',
+    questions: [
+      {id:'l15', q:'L\'objection la plus fréquente ?'},
+      {id:'l16', q:'Votre réponse à cette objection ?'},
+    ]
+  },
+  {
+    name: 'La communication',
+    questions: [
+      {id:'l17', q:'3-4 adjectifs pour décrire votre lieu ?'},
+      {id:'l18', q:'Tutoiement ou vouvoiement ?'},
+      {id:'l19', q:'Mots ou expressions que vous utilisez naturellement ?'},
+      {id:'l20', q:'Choses à ne PAS voir dans la communication ?'},
+    ]
+  },
+  {
+    name: 'Le lancement',
+    questions: [
+      {id:'l21', q:'Tarif envisagé ? Formules ?'},
+      {id:'l22', q:'Offre de lancement pour les premiers inscrits ?'},
+      {id:'l23', q:'Partenariat SCA : comment ça s\'est fait ?'},
+      {id:'l24', q:'Autres partenariats en vue ?'},
+      {id:'l25', q:'Budget communication pour le lancement ?'},
+      {id:'l26', q:'Autre chose d\'important ?'},
+    ]
+  }
+];
+
+let allSubmissions = [];
+let currentFilter = 'all';
+
+// ===== AUTH =====
+function checkLogin() {
+  const pw = document.getElementById('login-pw').value;
+  if (pw === CRM_PASSWORD) {
+    sessionStorage.setItem('crm_auth', '1');
+    showDashboard();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('crm_auth');
+  location.reload();
+}
+
+function showDashboard() {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  loadSubmissions();
+}
+
+// ===== DATA =====
+async function loadSubmissions() {
+  const { data, error } = await sb
+    .from('submissions')
+    .select('*')
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    console.error('Erreur chargement:', error);
+    return;
+  }
+
+  allSubmissions = data || [];
+  updateStats();
+  renderList();
+}
+
+function updateStats() {
+  document.getElementById('stat-total').textContent = allSubmissions.length;
+  document.getElementById('stat-nouveau').textContent = allSubmissions.filter(s => s.status === 'nouveau').length;
+  document.getElementById('stat-encours').textContent = allSubmissions.filter(s => s.status === 'en_cours').length;
+  document.getElementById('stat-traite').textContent = allSubmissions.filter(s => s.status === 'traite').length;
+}
+
+// ===== RENDER =====
+function renderList() {
+  const list = document.getElementById('submissions-list');
+  const filtered = currentFilter === 'all' ? allSubmissions : allSubmissions.filter(s => s.status === currentFilter);
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state"><p>Aucune soumission</p><span>Les réponses apparaîtront ici automatiquement.</span></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((sub, i) => {
+    const resp = sub.responses || {};
+    const answered = Object.values(resp).filter(v => v && v.trim()).length;
+    const name = sub.client_name || guessName(resp) || 'Sans nom';
+    const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    const date = new Date(sub.updated_at).toLocaleDateString('fr-FR', {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'});
+    const statusBadge = sub.status === 'nouveau' ? 'badge-nouveau' : sub.status === 'en_cours' ? 'badge-en_cours' : 'badge-traite';
+    const statusLabel = sub.status === 'nouveau' ? 'Nouveau' : sub.status === 'en_cours' ? 'En cours' : 'Traité';
+    const completedBadge = sub.completed ? '<span class="badge badge-completed">Terminé</span>' : '<span class="badge badge-progress">' + answered + '/26</span>';
+
+    return `
+      <div class="submission" id="sub-${sub.id}">
+        <div class="sub-header" onclick="toggleDetail('${sub.id}')">
+          <div class="sub-avatar">${initials}</div>
+          <div class="sub-info">
+            <div class="sub-name">${escHtml(name)}</div>
+            <div class="sub-meta">${sub.template} · ${date}</div>
+          </div>
+          <div class="sub-badges">
+            ${completedBadge}
+            <span class="badge ${statusBadge}">${statusLabel}</span>
+          </div>
+        </div>
+        <div class="sub-detail" id="detail-${sub.id}">
+          <div class="detail-actions">
+            <select onchange="updateStatus('${sub.id}', this.value)">
+              <option value="nouveau" ${sub.status==='nouveau'?'selected':''}>Nouveau</option>
+              <option value="en_cours" ${sub.status==='en_cours'?'selected':''}>En cours</option>
+              <option value="traite" ${sub.status==='traite'?'selected':''}>Traité</option>
+            </select>
+            <input type="text" placeholder="Ajouter une note..." value="${escHtml(sub.notes||'')}" id="note-${sub.id}">
+            <button class="btn-save-note" onclick="saveNote('${sub.id}')">Sauver</button>
+          </div>
+          ${renderResponses(resp)}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function guessName(resp) {
+  // Try to extract a name from responses (for audit template with a30)
+  if (resp.a30) return resp.a30;
+  return null;
+}
+
+function renderResponses(resp) {
+  let html = '';
+  SECTIONS.forEach(sec => {
+    let sectionHtml = '';
+    let hasAnswer = false;
+    sec.questions.forEach(q => {
+      const val = resp[q.id];
+      if (val && val.trim()) {
+        hasAnswer = true;
+        sectionHtml += `<div class="response-item"><div class="response-q">${escHtml(q.q)}</div><div class="response-a">${escHtml(val)}</div></div>`;
+      }
+    });
+    if (hasAnswer) {
+      html += `<div class="response-section"><h4>${sec.name}</h4>${sectionHtml}</div>`;
+    }
+  });
+  if (!html) html = '<p class="response-empty">Aucune réponse pour le moment.</p>';
+  return html;
+}
+
+// ===== ACTIONS =====
+function toggleDetail(id) {
+  const el = document.getElementById('detail-' + id);
+  el.classList.toggle('open');
+}
+
+async function updateStatus(id, status) {
+  await sb.from('submissions').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+  const sub = allSubmissions.find(s => s.id === id);
+  if (sub) sub.status = status;
+  updateStats();
+}
+
+async function saveNote(id) {
+  const note = document.getElementById('note-' + id).value;
+  await sb.from('submissions').update({ notes: note, updated_at: new Date().toISOString() }).eq('id', id);
+  const sub = allSubmissions.find(s => s.id === id);
+  if (sub) sub.notes = note;
+}
+
+function filterBy(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+function copyQuestionnaireLink() {
+  const url = window.location.origin + '/';
+  navigator.clipboard.writeText(url).then(() => {
+    alert('Lien copié : ' + url);
+  });
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== INIT =====
+if (sessionStorage.getItem('crm_auth') === '1') {
+  showDashboard();
+}
+</script>
+</body>
+</html>

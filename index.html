@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Les Bains — Albi · Questionnaire lancement</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -197,6 +198,53 @@ textarea:focus,input:focus{outline:none;border-color:var(--accent);background:va
 <div class="save-indicator" id="save-indicator">Sauvegardé</div>
 
 <script>
+// ===== SUPABASE =====
+const SUPABASE_URL = 'https://luekvhkynpvlfdejizhz.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_bExpV0ZFCr_C0crqcun8lA_cCyDqZmc';
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+function getSessionId() {
+  let sid = localStorage.getItem('questionnaire_session_id');
+  if (!sid) {
+    sid = crypto.randomUUID();
+    localStorage.setItem('questionnaire_session_id', sid);
+  }
+  return sid;
+}
+
+let saveTimer = null;
+async function syncToSupabase() {
+  if (!sb) return;
+  const sid = getSessionId();
+  const { error } = await sb.from('submissions').upsert({
+    session_id: sid,
+    template: 'lancement',
+    responses: responses,
+    current_step: currentStep,
+    completed: false,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'session_id' });
+  if (error) console.warn('Supabase sync error:', error.message);
+}
+
+function debouncedSync() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(syncToSupabase, 2000);
+}
+
+async function markCompleted() {
+  if (!sb) return;
+  const sid = getSessionId();
+  await sb.from('submissions').upsert({
+    session_id: sid,
+    template: 'lancement',
+    responses: responses,
+    current_step: allQuestions.length,
+    completed: true,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'session_id' });
+}
+
 // ===== QUESTIONS =====
 const SECTIONS = [
   {
@@ -446,6 +494,7 @@ function saveSession() {
     responses: responses,
     savedAt: new Date().toISOString()
   }));
+  debouncedSync();
   const el = document.getElementById('save-indicator');
   el.classList.add('show');
   clearTimeout(el._timer);
@@ -521,6 +570,7 @@ function stopVoice() {
 // ===== SYNTHÈSE =====
 function showSynthese() {
   saveSession();
+  markCompleted();
   if (isRecording) stopVoice();
 
   document.getElementById('questionnaire-view').style.display = 'none';
